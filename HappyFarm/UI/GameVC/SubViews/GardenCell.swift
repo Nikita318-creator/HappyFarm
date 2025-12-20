@@ -1,23 +1,22 @@
 import UIKit
 import SnapKit
 
-// 1. Определяем типы культур
 enum PlantType: String, CaseIterable {
     case carrot = "plant_carrot"
     case onion = "plant_onion"
     case corn = "plant_corn"
     case pineapple = "plant_pineapple"
     case cabbage = "plant_cabbage"
-    case cloverBase = "clover_standard" // 3-х листный
-    case cloverRare = "clover_dark"     // 4-х листный
-    case cloverGold = "clover_gold"     // Золотой
+    case cloverBase = "clover_standard"
+    case cloverRare = "clover_dark"
+    case cloverGold = "clover_gold"
 }
 
 class GardenCell: UICollectionViewCell {
     static let reuseId = "GardenCell"
     
     private let gardenImageView = UIImageView()
-    private let plantImageView = UIImageView() // Картинка выросшей культуры
+    private let plantImageView = UIImageView()
     private let timerLabel = UILabel()
     
     private var timer: Timer?
@@ -40,7 +39,6 @@ class GardenCell: UICollectionViewCell {
         contentView.addSubview(gardenImageView)
         gardenImageView.snp.makeConstraints { $0.edges.equalToSuperview() }
         
-        // Картинка растения поверх грядки
         plantImageView.contentMode = .scaleAspectFit
         plantImageView.isHidden = true
         contentView.addSubview(plantImageView)
@@ -56,14 +54,11 @@ class GardenCell: UICollectionViewCell {
         timerLabel.snp.makeConstraints { $0.center.equalToSuperview() }
     }
     
-    func configure(with index: Int) {
-
-    }
+    func configure(with index: Int) {}
     
     func startTimer(seconds: Int) {
         guard timer == nil else { return }
         
-        // Сбрасываем старый урожай перед новым ростом
         plantImageView.isHidden = true
         timerLabel.isHidden = false
         
@@ -91,12 +86,11 @@ class GardenCell: UICollectionViewCell {
         
         let result = getRandomPlant()
         currentPlant = result
-        isReady = true // Теперь можно собирать
+        isReady = true
         
         plantImageView.image = UIImage(named: result.rawValue)
         plantImageView.isHidden = false
         
-        // Анимация «вырастания» в грядке
         plantImageView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
         UIView.animate(withDuration: 0.3) {
             self.plantImageView.transform = .identity
@@ -105,7 +99,6 @@ class GardenCell: UICollectionViewCell {
         onGrowthFinished?(result)
     }
     
-    // Метод для очистки грядки (сбор урожая)
     func harvest() -> PlantType? {
         let plant = currentPlant
         isReady = false
@@ -116,18 +109,13 @@ class GardenCell: UICollectionViewCell {
         return plant
     }
     
-    // 2. Логика вероятностей
     private func getRandomPlant() -> PlantType {
         let roll = Int.random(in: 1...100)
-        
         switch roll {
-        case 1: // 1% шанс
-            return .cloverGold
-        case 2...5: // 4% шанс
-            return .cloverRare
-        case 6...15: // 10% шанс
-            return .cloverBase
-        default: // Остальные 85% делят обычные овощи
+        case 1: return .cloverGold
+        case 2...5: return .cloverRare
+        case 6...15: return .cloverBase
+        default:
             let veggies: [PlantType] = [.carrot, .onion, .corn, .pineapple, .cabbage]
             return veggies.randomElement() ?? .carrot
         }

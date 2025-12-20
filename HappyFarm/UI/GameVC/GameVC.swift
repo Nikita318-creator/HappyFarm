@@ -5,15 +5,69 @@ class GameVC: UIViewController {
     
     private let backgroundView = UIImageView()
     private let topBar = GameTopBar()
-//    private let growthTimes = [10, 20, 30, 60, 90, 120, 300, 300, 300]
     private let growthTimes = [1, 2, 3, 6, 9, 12, 30, 30, 30]
 
     private var collectionView: UICollectionView!
+    
+    // Элементы обучения
+    private let tutorialLabel = UILabel()
+    private let tapPointer = UIImageView(image: UIImage(named: "tap"))
+    private let tutorialKey = "did_finish_tutorial"
 
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
         setupCollectionView()
+    }
+    
+    override func viewDidAppear(_ animated: Bool) {
+        super.viewDidAppear(animated)
+        checkTutorial()
+    }
+    
+    private func checkTutorial() {
+        if !UserDefaults.standard.bool(forKey: tutorialKey) {
+            setupTutorialUI()
+        }
+    }
+    
+    private func setupTutorialUI() {
+        tutorialLabel.text = "Tap on the patch to plant a crop"
+        tutorialLabel.backgroundColor = .black.withAlphaComponent(0.8)
+        tutorialLabel.textColor = .white
+        tutorialLabel.textAlignment = .center
+        tutorialLabel.font = .systemFont(ofSize: 16, weight: .black)
+        tutorialLabel.layer.cornerRadius = 12
+        tutorialLabel.clipsToBounds = true
+        tutorialLabel.numberOfLines = 0
+        
+        view.addSubview(tutorialLabel)
+        view.addSubview(tapPointer)
+        
+        tutorialLabel.snp.makeConstraints { make in
+            make.top.equalTo(topBar.snp.bottom).offset(20)
+            make.centerX.equalToSuperview()
+            make.width.equalToSuperview().inset(40)
+            make.height.greaterThanOrEqualTo(50)
+        }
+        
+        collectionView.layoutIfNeeded()
+        if let firstCell = collectionView.cellForItem(at: IndexPath(row: 0, section: 0)) {
+            tapPointer.snp.makeConstraints { make in
+                make.center.equalTo(firstCell.snp.center).offset(20)
+                make.size.equalTo(50)
+            }
+            
+            UIView.animate(withDuration: 0.6, delay: 0, options: [.autoreverse, .repeat], animations: {
+                self.tapPointer.transform = CGAffineTransform(scaleX: 1.2, y: 1.2)
+            })
+        }
+    }
+    
+    private func finishTutorial() {
+        UserDefaults.standard.set(true, forKey: tutorialKey)
+        tutorialLabel.removeFromSuperview()
+        tapPointer.removeFromSuperview()
     }
     
     private func setupUI() {
@@ -63,7 +117,6 @@ class GameVC: UIViewController {
     }
 }
 
-// MARK: - CollectionView Extension
 extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, numberOfItemsInSection section: Int) -> Int {
         return 9
@@ -78,13 +131,23 @@ extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         guard let cell = collectionView.cellForItem(at: indexPath) as? GardenCell else { return }
         
+        let isTutorialActive = !UserDefaults.standard.bool(forKey: tutorialKey)
+        
         if cell.isReady {
             if let plant = cell.harvest() {
                 showFullPlantAnimation(plant: plant)
-                calculateRewards(for: plant)
+                if isTutorialActive {
+                    finishTutorial()
+                }
             }
         } else {
             cell.startTimer(seconds: growthTimes[indexPath.row])
+            
+            // Если этап обучения и нажата первая грядка
+            if isTutorialActive && indexPath.row == 0 {
+                tutorialLabel.text = "Wait for it to grow and tap to harvest"
+                tapPointer.isHidden = true
+            }
         }
     }
     
@@ -100,18 +163,17 @@ extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
             make.size.equalTo(200)
         }
         
-        // Красивое появление
         fullImageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
         UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.4, options: .curveEaseOut) {
             fullImageView.alpha = 1
             fullImageView.transform = .identity
         } completion: { _ in
-            // Исчезновение через 3 секунды
-            UIView.animate(withDuration: 0.5, delay: 2.5, options: .curveEaseIn) {
+            UIView.animate(withDuration: 0.5, delay: 1.0, options: .curveEaseIn) {
                 fullImageView.alpha = 0
                 fullImageView.transform = CGAffineTransform(translationX: 0, y: -100)
             } completion: { _ in
                 fullImageView.removeFromSuperview()
+                self.calculateRewards(for: plant)
             }
         }
     }
@@ -122,10 +184,10 @@ extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
         
         switch plant {
         case .cloverBase, .cloverRare, .cloverGold:
-            coinsReward = Int.random(in: 300...400)
+            coinsReward = [100, 150, 200].randomElement() ?? 100
             energyReward = 1
         default:
-            coinsReward = Int.random(in: 50...150)
+            coinsReward = [10, 20, 30, 40, 50].randomElement() ?? 10
             energyReward = 0
         }
         
