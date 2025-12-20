@@ -92,6 +92,10 @@ class HomeVC: UIViewController {
     }
     @objc private func rulesTap() { print("Tap RULES") }
     @objc private func storeTap() { print("Tap STORE") }
-    @objc private func trophiesTap() { print("Tap TROPHIES") }
+    @objc private func trophiesTap() {
+        let vc = TrophiesVC()
+        vc.modalPresentationStyle = .fullScreen
+        present(vc, animated: true)
+    }
     @objc private func exitTap() { exit(0) }
 }

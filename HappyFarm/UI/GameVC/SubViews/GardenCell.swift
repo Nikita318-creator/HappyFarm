@@ -106,19 +106,23 @@ class GardenCell: UICollectionViewCell {
         UIView.animate(withDuration: 0.3) {
             self.plantImageView.transform = .identity
         }
-        
-        onGrowthFinished?(result)
     }
     
     func harvest() -> PlantType? {
         playSound(id: 1103)
         
-        let plant = currentPlant
+        guard let plant = currentPlant else { return nil }
+        
+        let key = "trophy_count_\(plant.rawValue)"
+        let currentCount = UserDefaults.standard.integer(forKey: key)
+        UserDefaults.standard.set(currentCount + 1, forKey: key)
+        
         isReady = false
         currentPlant = nil
         plantImageView.isHidden = true
         timerLabel.text = ""
         timerLabel.isHidden = false
+        
         return plant
     }
     
