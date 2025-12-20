@@ -1,0 +1,12 @@
+{
+  "images" : [
+    {
+      "filename" : "clover_standard_full.pdf",
+      "idiom" : "universal"
+    }
+  ],
+  "info" : {
+    "author" : "xcode",
+    "version" : 1
+  }
+}

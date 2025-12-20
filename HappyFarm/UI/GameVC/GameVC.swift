@@ -37,10 +37,13 @@ class GameVC: UIViewController {
     
     private func setupCollectionView() {
         let layout = UICollectionViewFlowLayout()
-        layout.minimumInteritemSpacing = 10
-        layout.minimumLineSpacing = 10
+        let spacing: CGFloat = 10
+        layout.minimumInteritemSpacing = spacing
+        layout.minimumLineSpacing = spacing
         
-        let side = (view.frame.width - 60) / 3
+        let availableWidth = view.frame.width - 110
+        let side = (availableWidth - (spacing * 2)) / 3
+        
         layout.itemSize = CGSize(width: side, height: side)
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
@@ -54,8 +57,8 @@ class GameVC: UIViewController {
         collectionView.snp.makeConstraints { make in
             make.centerX.equalToSuperview()
             make.centerY.equalToSuperview().offset(70)
-            make.leading.trailing.equalToSuperview().inset(20)
-            make.height.equalTo(view.snp.width)
+            make.leading.trailing.equalToSuperview().inset(40)
+            make.height.equalTo(collectionView.snp.width)
         }
     }
 }
