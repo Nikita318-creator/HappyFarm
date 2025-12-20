@@ -9,7 +9,6 @@ class GameVC: UIViewController {
 
     private var collectionView: UICollectionView!
     
-    // Элементы обучения
     private let tutorialLabel = UILabel()
     private let tapPointer = UIImageView(image: UIImage(named: "tap"))
     private let tutorialKey = "did_finish_tutorial"
@@ -79,13 +78,38 @@ class GameVC: UIViewController {
         backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
         
         view.addSubview(topBar)
+        
         topBar.onPauseTapped = { [weak self] in
-            self?.dismiss(animated: true)
+            self?.showPauseMenu()
         }
+        
         topBar.snp.makeConstraints { make in
             make.top.equalTo(view.safeAreaLayoutGuide).offset(10)
             make.leading.trailing.equalToSuperview().inset(8)
             make.height.equalTo(40)
+        }
+    }
+    
+    private func showPauseMenu() {
+        let pauseView = PauseView()
+        view.addSubview(pauseView)
+        pauseView.snp.makeConstraints { $0.edges.equalToSuperview() }
+        
+        pauseView.alpha = 0
+        UIView.animate(withDuration: 0.3) {
+            pauseView.alpha = 1
+        }
+        
+        pauseView.onMenuTapped = { [weak self] in
+            self?.dismiss(animated: true)
+        }
+        
+        pauseView.onCloseTapped = {
+            UIView.animate(withDuration: 0.3, animations: {
+                pauseView.alpha = 0
+            }) { _ in
+                pauseView.removeFromSuperview()
+            }
         }
     }
     
@@ -143,7 +167,6 @@ extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
         } else {
             cell.startTimer(seconds: growthTimes[indexPath.row])
             
-            // Если этап обучения и нажата первая грядка
             if isTutorialActive && indexPath.row == 0 {
                 tutorialLabel.text = "Wait for it to grow and tap to harvest"
                 tapPointer.isHidden = true
