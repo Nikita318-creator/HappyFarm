@@ -15,6 +15,9 @@ class GameTopBar: UIView {
     let coinLabel = UILabel()
     let energyLabel = UILabel()
     
+    var coins: Int = 0
+    var energy: Int = 0
+
     // Кнопка паузы
     private let pauseBtn = UIButton()
     
@@ -29,6 +32,14 @@ class GameTopBar: UIView {
         fatalError("init(coder:) has not been implemented")
     }
     
+    func updateScore(newCoinsCount: Int, newEnergyCount: Int) {
+        coins += newCoinsCount
+        energy += newEnergyCount
+        
+        coinLabel.text = "\(coins)"
+        energyLabel.text = "\(energy)"
+    }
+    
     private func setupViews() {
         [coinLabel, energyLabel].forEach {
             $0.textColor = .white.withAlphaComponent(0.7)
@@ -36,8 +47,8 @@ class GameTopBar: UIView {
             $0.textAlignment = .center
         }
         
-        coinLabel.text = "1500"
-        energyLabel.text = "4"
+        coinLabel.text = "\(coins)"
+        energyLabel.text = "\(energy)"
         
         pauseBtn.setBackgroundImage(UIImage(named: "pause_btn"), for: .normal)
         pauseBtn.addTarget(self, action: #selector(handlePause), for: .touchUpInside)

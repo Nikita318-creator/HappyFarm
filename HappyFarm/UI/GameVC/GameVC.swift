@@ -5,8 +5,9 @@ class GameVC: UIViewController {
     
     private let backgroundView = UIImageView()
     private let topBar = GameTopBar()
-    private let growthTimes = [10, 20, 30, 60, 90, 120, 300, 300, 300]
-    
+//    private let growthTimes = [10, 20, 30, 60, 90, 120, 300, 300, 300]
+    private let growthTimes = [1, 2, 3, 6, 9, 12, 30, 30, 30]
+
     private var collectionView: UICollectionView!
 
     override func viewDidLoad() {
@@ -72,15 +73,59 @@ extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
     }
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
-        if let cell = collectionView.cellForItem(at: indexPath) as? GardenCell {
-            let time = growthTimes[indexPath.row]
-            
-            print("Запуск роста на грядке \(indexPath.row) на \(time) сек")
-            
-            cell.startTimer(seconds: time)
-            cell.onGrowthFinished = {
-                print("Грядка \(indexPath.row) принесла урожай! Хий.")
+        guard let cell = collectionView.cellForItem(at: indexPath) as? GardenCell else { return }
+        
+        if cell.isReady {
+            if let plant = cell.harvest() {
+                showFullPlantAnimation(plant: plant)
+                calculateRewards(for: plant)
+            }
+        } else {
+            cell.startTimer(seconds: growthTimes[indexPath.row])
+        }
+    }
+    
+    private func showFullPlantAnimation(plant: PlantType) {
+        let fullImageName = plant.rawValue + "_full"
+        let fullImageView = UIImageView(image: UIImage(named: fullImageName))
+        fullImageView.contentMode = .scaleAspectFit
+        fullImageView.alpha = 0
+        
+        view.addSubview(fullImageView)
+        fullImageView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(200)
+        }
+        
+        // Красивое появление
+        fullImageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.4, options: .curveEaseOut) {
+            fullImageView.alpha = 1
+            fullImageView.transform = .identity
+        } completion: { _ in
+            // Исчезновение через 3 секунды
+            UIView.animate(withDuration: 0.5, delay: 2.5, options: .curveEaseIn) {
+                fullImageView.alpha = 0
+                fullImageView.transform = CGAffineTransform(translationX: 0, y: -100)
+            } completion: { _ in
+                fullImageView.removeFromSuperview()
             }
         }
+    }
+    
+    private func calculateRewards(for plant: PlantType) {
+        var coinsReward = 0
+        var energyReward = 0
+        
+        switch plant {
+        case .cloverBase, .cloverRare, .cloverGold:
+            coinsReward = Int.random(in: 300...400)
+            energyReward = 1
+        default:
+            coinsReward = Int.random(in: 50...150)
+            energyReward = 0
+        }
+        
+        topBar.updateScore(newCoinsCount: coinsReward, newEnergyCount: energyReward)
     }
 }

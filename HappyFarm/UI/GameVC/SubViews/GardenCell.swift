@@ -1,17 +1,31 @@
 import UIKit
 import SnapKit
 
+// 1. Определяем типы культур
+enum PlantType: String, CaseIterable {
+    case carrot = "plant_carrot"
+    case onion = "plant_onion"
+    case corn = "plant_corn"
+    case pineapple = "plant_pineapple"
+    case cabbage = "plant_cabbage"
+    case cloverBase = "clover_standard" // 3-х листный
+    case cloverRare = "clover_dark"     // 4-х листный
+    case cloverGold = "clover_gold"     // Золотой
+}
+
 class GardenCell: UICollectionViewCell {
     static let reuseId = "GardenCell"
     
     private let gardenImageView = UIImageView()
+    private let plantImageView = UIImageView() // Картинка выросшей культуры
     private let timerLabel = UILabel()
     
     private var timer: Timer?
     private var timeLeft: Int = 0
-    private var cellIndex: Int = 0
     
-    var onGrowthFinished: (() -> Void)?
+    private(set) var isReady: Bool = false
+    private(set) var currentPlant: PlantType?
+    var onGrowthFinished: ((PlantType) -> Void)?
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -26,27 +40,32 @@ class GardenCell: UICollectionViewCell {
         contentView.addSubview(gardenImageView)
         gardenImageView.snp.makeConstraints { $0.edges.equalToSuperview() }
         
+        // Картинка растения поверх грядки
+        plantImageView.contentMode = .scaleAspectFit
+        plantImageView.isHidden = true
+        contentView.addSubview(plantImageView)
+        plantImageView.snp.makeConstraints { make in
+            make.centerX.equalToSuperview()
+            make.centerY.equalToSuperview().offset(-15)
+            make.size.equalToSuperview().multipliedBy(0.7)
+        }
+        
         timerLabel.textColor = .white
         timerLabel.font = .systemFont(ofSize: 16, weight: .black)
-        timerLabel.textAlignment = .center
-        
         contentView.addSubview(timerLabel)
-        timerLabel.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-        }
+        timerLabel.snp.makeConstraints { $0.center.equalToSuperview() }
     }
     
-    // Вот твой пропавший метод, сука
     func configure(with index: Int) {
-        self.cellIndex = index
-        // Если таймер не запущен, можно просто очистить текст или поставить ID
-        if timer == nil {
-            timerLabel.text = ""
-        }
+
     }
     
     func startTimer(seconds: Int) {
         guard timer == nil else { return }
+        
+        // Сбрасываем старый урожай перед новым ростом
+        plantImageView.isHidden = true
+        timerLabel.isHidden = false
         
         self.timeLeft = seconds
         updateLabel()
@@ -61,15 +80,57 @@ class GardenCell: UICollectionViewCell {
             timeLeft -= 1
             updateLabel()
         } else {
-            stopTimer()
-            timerLabel.text = "READY!"
-            onGrowthFinished?()
+            finishGrowth()
         }
     }
     
-    private func stopTimer() {
+    private func finishGrowth() {
         timer?.invalidate()
         timer = nil
+        timerLabel.isHidden = true
+        
+        let result = getRandomPlant()
+        currentPlant = result
+        isReady = true // Теперь можно собирать
+        
+        plantImageView.image = UIImage(named: result.rawValue)
+        plantImageView.isHidden = false
+        
+        // Анимация «вырастания» в грядке
+        plantImageView.transform = CGAffineTransform(scaleX: 0.5, y: 0.5)
+        UIView.animate(withDuration: 0.3) {
+            self.plantImageView.transform = .identity
+        }
+        
+        onGrowthFinished?(result)
+    }
+    
+    // Метод для очистки грядки (сбор урожая)
+    func harvest() -> PlantType? {
+        let plant = currentPlant
+        isReady = false
+        currentPlant = nil
+        plantImageView.isHidden = true
+        timerLabel.text = ""
+        timerLabel.isHidden = false
+        return plant
+    }
+    
+    // 2. Логика вероятностей
+    private func getRandomPlant() -> PlantType {
+        let roll = Int.random(in: 1...100)
+        
+        switch roll {
+        case 1: // 1% шанс
+            return .cloverGold
+        case 2...5: // 4% шанс
+            return .cloverRare
+        case 6...15: // 10% шанс
+            return .cloverBase
+        default: // Остальные 85% делят обычные овощи
+            let veggies: [PlantType] = [.carrot, .onion, .corn, .pineapple, .cabbage]
+            return veggies.randomElement() ?? .carrot
+        }
     }
     
     private func updateLabel() {
@@ -80,7 +141,9 @@ class GardenCell: UICollectionViewCell {
     
     override func prepareForReuse() {
         super.prepareForReuse()
-        stopTimer()
+        timer?.invalidate()
+        timer = nil
+        plantImageView.isHidden = true
         timerLabel.text = ""
     }
 }
