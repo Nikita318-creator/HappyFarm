@@ -16,6 +16,8 @@ class HomeVC: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupTargets()
+        
+        let _ = SystemSinglton.shared
     }
     
     private func setupUI() {

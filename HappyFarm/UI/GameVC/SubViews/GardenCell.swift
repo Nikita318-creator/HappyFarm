@@ -1,5 +1,6 @@
 import UIKit
 import SnapKit
+import AudioToolbox // 1. Импортируем для звуков
 
 enum PlantType: String, CaseIterable {
     case carrot = "plant_carrot"
@@ -33,6 +34,12 @@ class GardenCell: UICollectionViewCell {
     
     required init?(coder: NSCoder) { fatalError() }
     
+    private func playSound(id: SystemSoundID) {
+        if !SystemSinglton.shared.isSoundOff {
+            AudioServicesPlaySystemSound(id)
+        }
+    }
+    
     private func setupCell() {
         gardenImageView.image = UIImage(named: "garden_img")
         gardenImageView.contentMode = .scaleAspectFit
@@ -59,6 +66,8 @@ class GardenCell: UICollectionViewCell {
     func startTimer(seconds: Int) {
         guard timer == nil else { return }
         
+        playSound(id: 1104)
+        
         plantImageView.isHidden = true
         timerLabel.isHidden = false
         
@@ -84,6 +93,8 @@ class GardenCell: UICollectionViewCell {
         timer = nil
         timerLabel.isHidden = true
         
+        playSound(id: 1111)
+        
         let result = getRandomPlant()
         currentPlant = result
         isReady = true
@@ -100,6 +111,8 @@ class GardenCell: UICollectionViewCell {
     }
     
     func harvest() -> PlantType? {
+        playSound(id: 1103)
+        
         let plant = currentPlant
         isReady = false
         currentPlant = nil

@@ -12,8 +12,8 @@ class PauseView: UIView {
     private let menuBtn = UIButton()
     private let closeBtn = UIButton()
     
-    private var isSoundActive = true
-    private var isMusicActive = true
+    private var isSoundActive = !SystemSinglton.shared.isSoundOff
+    private var isMusicActive = !SystemSinglton.shared.isMusicOff
     
     override init(frame: CGRect) {
         super.init(frame: frame)
@@ -30,10 +30,10 @@ class PauseView: UIView {
         titleImageView.contentMode = .scaleAspectFit
         
         // Настройка кнопок
-        soundBtn.setBackgroundImage(UIImage(named: "sound_on"), for: .normal)
+        soundBtn.setBackgroundImage(UIImage(named: isSoundActive ? "sound_on" : "sound_off"), for: .normal)
         soundBtn.addTarget(self, action: #selector(toggleSound), for: .touchUpInside)
         
-        musicBtn.setBackgroundImage(UIImage(named: "music_on"), for: .normal)
+        musicBtn.setBackgroundImage(UIImage(named: isMusicActive ? "music_on" : "music_off"), for: .normal)
         musicBtn.addTarget(self, action: #selector(toggleMusic), for: .touchUpInside)
         
         menuBtn.setBackgroundImage(UIImage(named: "menu_btn"), for: .normal)
@@ -86,12 +86,16 @@ class PauseView: UIView {
         isSoundActive.toggle()
         let imgName = isSoundActive ? "sound_on" : "sound_off"
         soundBtn.setBackgroundImage(UIImage(named: imgName), for: .normal)
+        
+        SystemSinglton.shared.isSoundOff = !isSoundActive
     }
     
     @objc private func toggleMusic() {
         isMusicActive.toggle()
         let imgName = isMusicActive ? "music_on" : "music_off"
         musicBtn.setBackgroundImage(UIImage(named: imgName), for: .normal)
+        
+        SystemSinglton.shared.isMusicOff = !isMusicActive
     }
     
     @objc private func handleMenu() {
