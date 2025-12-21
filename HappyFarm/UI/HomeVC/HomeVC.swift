@@ -86,7 +86,7 @@ class HomeVC: UIViewController {
     }
     
     @objc private func playTap() {
-        let vc = GameVC()
+        let vc = GameVC.shared
         vc.modalPresentationStyle = .fullScreen
         present(vc, animated: true)
     }

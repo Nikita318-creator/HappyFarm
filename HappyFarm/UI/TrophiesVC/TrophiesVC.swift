@@ -11,7 +11,22 @@ class TrophiesVC: UIViewController {
     
     private let plants: [PlantType] = {
         let all = PlantType.allCases
-        return all.filter { !$0.rawValue.contains("clover") } + all.filter { $0.rawValue.contains("clover") }
+        
+        // Определяем желаемый порядок для начала списка
+        let priorityOrder: [PlantType] = [.cloverGold, .cloverRare, .cloverBase]
+        
+        return all.sorted { a, b in
+            let indexA = priorityOrder.firstIndex(of: a) ?? Int.max
+            let indexB = priorityOrder.firstIndex(of: b) ?? Int.max
+            
+            if indexA != indexB {
+                // Если хотя бы одно растение в списке приоритетов — сортируем по индексу
+                return indexA < indexB
+            } else {
+                // Если оба обычные — оставляем как есть (по алфавиту или как в enum)
+                return false
+            }
+        }
     }()
     
     override func viewDidLoad() {

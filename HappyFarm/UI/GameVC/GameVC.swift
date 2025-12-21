@@ -2,6 +2,7 @@ import UIKit
 import SnapKit
 
 class GameVC: UIViewController {
+    static let shared = GameVC()
     
     private let backgroundView = UIImageView()
     private let topBar = GameTopBar()
@@ -103,6 +104,8 @@ class GameVC: UIViewController {
         
         pauseView.onMenuTapped = { [weak self] in
             self?.dismiss(animated: true)
+            pauseView.alpha = 0
+            pauseView.removeFromSuperview()
         }
         
         pauseView.onCloseTapped = {
