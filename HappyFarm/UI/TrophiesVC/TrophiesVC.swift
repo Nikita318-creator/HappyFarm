@@ -7,6 +7,7 @@ class TrophiesVC: UIViewController {
     private let blackOverlay = UIView()
     private let titleImageView = UIImageView()
     private var collectionView: UICollectionView!
+    private let backBtn = UIButton() // Добавили кнопку
     
     private let plants: [PlantType] = {
         let all = PlantType.allCases
@@ -19,7 +20,7 @@ class TrophiesVC: UIViewController {
     }
     
     private func setupUI() {
-        backgroundView.image = UIImage(named: "farm_image")
+        backgroundView.image = UIImage(named: "backgraundImg")
         backgroundView.contentMode = .scaleAspectFill
         view.addSubview(backgroundView)
         backgroundView.snp.makeConstraints { $0.edges.equalToSuperview() }
@@ -38,15 +39,25 @@ class TrophiesVC: UIViewController {
             make.width.equalTo(250)
         }
         
+        // Кнопка BACK (как в PauseView)
+        backBtn.setBackgroundImage(UIImage(named: "close_btn"), for: .normal)
+        backBtn.addTarget(self, action: #selector(handleBack), for: .touchUpInside)
+        view.addSubview(backBtn)
+        
+        backBtn.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide).offset(-20)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(105) // Тот самый размер 105
+        }
+        
         let layout = UICollectionViewFlowLayout()
         layout.scrollDirection = .vertical
-        layout.minimumLineSpacing = 10 // Минимальный зазор между растениями
-        // Ячейка почти по размеру растения (200 + запас на текст)
+        layout.minimumLineSpacing = 10
         layout.itemSize = CGSize(width: view.frame.width, height: 220)
         
         collectionView = UICollectionView(frame: .zero, collectionViewLayout: layout)
         collectionView.backgroundColor = .clear
-        collectionView.isPagingEnabled = false // ОБЫЧНЫЙ СКРОЛЛ
+        collectionView.isPagingEnabled = false
         collectionView.dataSource = self
         collectionView.showsVerticalScrollIndicator = false
         collectionView.register(TrophyCollectionCell.self, forCellWithReuseIdentifier: TrophyCollectionCell.id)
@@ -54,8 +65,13 @@ class TrophiesVC: UIViewController {
         view.addSubview(collectionView)
         collectionView.snp.makeConstraints { make in
             make.top.equalTo(titleImageView.snp.bottom).offset(10)
-            make.leading.trailing.bottom.equalToSuperview()
+            make.leading.trailing.equalToSuperview()
+            make.bottom.equalTo(backBtn.snp.top).offset(-10) // Коллекция заканчивается над кнопкой
         }
+    }
+    
+    @objc private func handleBack() {
+        self.dismiss(animated: true)
     }
 }
 

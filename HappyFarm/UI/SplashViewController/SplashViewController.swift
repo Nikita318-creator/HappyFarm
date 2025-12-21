@@ -7,7 +7,7 @@ class SplashViewController: UIViewController {
     
     private let iconView: UIImageView = {
         let iv = UIImageView()
-        iv.image = UIImage(systemName: "flame.fill")
+//        iv.image = UIImage(systemName: "flame.fill")
         iv.tintColor = .systemRed
         return iv
     }()
