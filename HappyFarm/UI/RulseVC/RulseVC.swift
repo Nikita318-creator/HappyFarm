@@ -52,15 +52,17 @@ class RulesVC: UIViewController {
         
         // 4. Текст правил
         rulesTextLabel.text = """
-        Plant crops to earn
-        coins and find clovers!
-        
-        Find lucky clovers to
-        expand your farm!
-        
-        Purchase items in the
-        store to speed up
-        growth!
+        Grow & Harvest crops
+        to get coins and 
+        legendary clovers!
+
+        Unlock more space!
+        Every clover makes 
+        your farm bigger!
+
+        Get the best gear!
+        Visit the shop to 
+        speed up your harvest!
         """
         rulesTextLabel.textColor = .white
         rulesTextLabel.numberOfLines = 0

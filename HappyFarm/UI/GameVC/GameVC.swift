@@ -5,7 +5,8 @@ class GameVC: UIViewController {
     
     private let backgroundView = UIImageView()
     private let topBar = GameTopBar()
-    private let growthTimes = [1, 2, 3, 6, 9, 12, 30, 30, 30]
+//    private let growthTimes = [1, 2, 3, 6, 9, 12, 30, 30, 30] 
+    private let growthTimes = [10, 20, 30, 60, 90, 120, 300, 300, 300]
 
     private var collectionView: UICollectionView!
     
