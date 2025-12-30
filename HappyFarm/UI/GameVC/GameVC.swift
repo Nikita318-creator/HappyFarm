@@ -2,18 +2,22 @@ import UIKit
 import SnapKit
 
 class GameVC: UIViewController {
-    static let shared = GameVC()
     
+    // Удаляем shared, чтобы каждый уровень инициализировался чисто
     private let backgroundView = UIImageView()
     private let topBar = GameTopBar()
-//    private let growthTimes = [1, 2, 3, 6, 9, 12, 30, 30, 30] 
-    private let growthTimes = [10, 20, 30, 60, 90, 120, 300, 300, 300]
-
+    
+    // Базовые тайминги для ячеек (сек)
+    private let baseGrowthTimes: [Int] = [5, 10, 15, 20, 25, 30, 40, 50, 60]
     private var collectionView: UICollectionView!
     
     private let tutorialLabel = UILabel()
     private let tapPointer = UIImageView(image: UIImage(named: "tap"))
     private let tutorialKey = "did_finish_tutorial"
+    
+    // Индекс уровня, который прилетает из LevelsVC
+    var currentLevel: Int = 0
+    private var isLevelCompleted = false
 
     override func viewDidLoad() {
         super.viewDidLoad()
@@ -143,6 +147,84 @@ class GameVC: UIViewController {
             make.height.equalTo(collectionView.snp.width)
         }
     }
+    
+    private func checkWinCondition(plant: PlantType) {
+        if isLevelCompleted { return }
+        
+        // Условие победы: если собрали любой тип клевера
+        let cloverTypes: [PlantType] = [.cloverBase, .cloverRare, .cloverGold]
+        
+        if cloverTypes.contains(plant) {
+            isLevelCompleted = true
+            
+            // Сохраняем прогресс: если прошли текущий уровень, открываем следующий
+            let nextLevelIndex = currentLevel + 1
+            let currentlySaved = UserDefaults.standard.integer(forKey: "unlocked_level")
+            if (nextLevelIndex + 1) > currentlySaved {
+                UserDefaults.standard.set(nextLevelIndex + 1, forKey: "unlocked_level")
+            }
+            
+            DispatchQueue.main.asyncAfter(deadline: .now() + 1.2) {
+                self.showWinScreen()
+            }
+        }
+    }
+    
+    private func showWinScreen() {
+        let alert = UIAlertController(title: "Level \(currentLevel + 1) Done!", message: "You found the clover! Next level unlocked.", preferredStyle: .alert)
+        alert.addAction(UIAlertAction(title: "Awesome", style: .default) { _ in
+            self.dismiss(animated: true)
+        })
+        self.present(alert, animated: true)
+    }
+    
+    private func showFullPlantAnimation(plant: PlantType) {
+        let fullImageName = plant.rawValue + "_full"
+        let fullImageView = UIImageView(image: UIImage(named: fullImageName))
+        fullImageView.contentMode = .scaleAspectFit
+        fullImageView.alpha = 0
+        
+        view.addSubview(fullImageView)
+        fullImageView.snp.makeConstraints { make in
+            make.center.equalToSuperview()
+            make.size.equalTo(200)
+        }
+        
+        fullImageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
+        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.4, options: .curveEaseOut) {
+            fullImageView.alpha = 1
+            fullImageView.transform = .identity
+        } completion: { _ in
+            UIView.animate(withDuration: 0.5, delay: 1.0, options: .curveEaseIn) {
+                fullImageView.alpha = 0
+                fullImageView.transform = CGAffineTransform(translationX: 0, y: -100)
+            } completion: { _ in
+                fullImageView.removeFromSuperview()
+                self.calculateRewards(for: plant)
+                self.checkWinCondition(plant: plant)
+            }
+        }
+    }
+    
+    private func calculateRewards(for plant: PlantType) {
+        var coinsReward = 0
+        var energyReward = 0
+        
+        switch plant {
+        case .cloverBase, .cloverRare, .cloverGold:
+            coinsReward = [100, 150, 200].randomElement() ?? 100
+            energyReward = 1
+        default:
+            coinsReward = [10, 20, 30, 40, 50].randomElement() ?? 10
+            energyReward = 0
+        }
+        
+        topBar.updateScore(newCoinsCount: coinsReward, newEnergyCount: energyReward)
+    }
+    
+    @objc private func exitGame() {
+        self.dismiss(animated: true)
+    }
 }
 
 extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
@@ -169,55 +251,17 @@ extension GameVC: UICollectionViewDataSource, UICollectionViewDelegate {
                 }
             }
         } else {
-            cell.startTimer(seconds: growthTimes[indexPath.row])
+            // Расчет сложности: Базовое время + (5% за каждый уровень)
+            let baseTime = Double(baseGrowthTimes[indexPath.row])
+            let levelDifficultyMultiplier = 1.0 + (Double(currentLevel) * 0.05)
+            let finalTime = Int(baseTime * levelDifficultyMultiplier)
+            
+            cell.startTimer(seconds: finalTime)
             
             if isTutorialActive && indexPath.row == 0 {
                 tutorialLabel.text = "Wait for it to grow and tap to harvest"
                 tapPointer.isHidden = true
             }
         }
-    }
-    
-    private func showFullPlantAnimation(plant: PlantType) {
-        let fullImageName = plant.rawValue + "_full"
-        let fullImageView = UIImageView(image: UIImage(named: fullImageName))
-        fullImageView.contentMode = .scaleAspectFit
-        fullImageView.alpha = 0
-        
-        view.addSubview(fullImageView)
-        fullImageView.snp.makeConstraints { make in
-            make.center.equalToSuperview()
-            make.size.equalTo(200)
-        }
-        
-        fullImageView.transform = CGAffineTransform(scaleX: 0.1, y: 0.1)
-        UIView.animate(withDuration: 0.6, delay: 0, usingSpringWithDamping: 0.6, initialSpringVelocity: 0.4, options: .curveEaseOut) {
-            fullImageView.alpha = 1
-            fullImageView.transform = .identity
-        } completion: { _ in
-            UIView.animate(withDuration: 0.5, delay: 1.0, options: .curveEaseIn) {
-                fullImageView.alpha = 0
-                fullImageView.transform = CGAffineTransform(translationX: 0, y: -100)
-            } completion: { _ in
-                fullImageView.removeFromSuperview()
-                self.calculateRewards(for: plant)
-            }
-        }
-    }
-    
-    private func calculateRewards(for plant: PlantType) {
-        var coinsReward = 0
-        var energyReward = 0
-        
-        switch plant {
-        case .cloverBase, .cloverRare, .cloverGold:
-            coinsReward = [100, 150, 200].randomElement() ?? 100
-            energyReward = 1
-        default:
-            coinsReward = [10, 20, 30, 40, 50].randomElement() ?? 10
-            energyReward = 0
-        }
-        
-        topBar.updateScore(newCoinsCount: coinsReward, newEnergyCount: energyReward)
     }
 }
