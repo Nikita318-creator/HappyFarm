@@ -15,6 +15,11 @@ class GameVC: UIViewController {
     private let tapPointer = UIImageView(image: UIImage(named: "tap"))
     private let tutorialKey = "did_finish_tutorial"
     
+    private let miniGameButton = UIButton(type: .custom)
+    private let skillHintBubble = UIView()
+    private let skillHintLabel = UILabel()
+    private let miniGameKey = "did_show_mini_game_hint"
+    
     // Индекс уровня, который прилетает из LevelsVC
     var currentLevel: Int = 0
     private var isLevelCompleted = false
@@ -23,6 +28,7 @@ class GameVC: UIViewController {
         super.viewDidLoad()
         setupUI()
         setupCollectionView()
+        showMiniGameHintIfNeeded()
     }
     
     override func viewDidAppear(_ animated: Bool) {
@@ -94,6 +100,70 @@ class GameVC: UIViewController {
             make.leading.trailing.equalToSuperview().inset(8)
             make.height.equalTo(40)
         }
+        
+        setupMiniGameButton()
+    }
+    
+    private func setupMiniGameButton() {
+        miniGameButton.setImage(UIImage(named: "skills_icon"), for: .normal) // Создай иконку в ассетах
+        miniGameButton.backgroundColor = .systemOrange
+        miniGameButton.layer.cornerRadius = 25
+        miniGameButton.layer.borderWidth = 3
+        miniGameButton.layer.borderColor = UIColor.white.cgColor
+        miniGameButton.addTarget(self, action: #selector(openMiniGame), for: .touchUpInside)
+        
+        view.addSubview(miniGameButton)
+        miniGameButton.snp.makeConstraints { make in
+            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(50)
+            make.centerX.equalToSuperview()
+            make.size.equalTo(60)
+        }
+        
+        // Кастомный поп-ап (баббл)
+        skillHintBubble.backgroundColor = .systemBlue
+        skillHintBubble.layer.cornerRadius = 15
+        skillHintBubble.alpha = 0
+        
+        skillHintLabel.text = "Bored waiting? Check your skills here!"
+        skillHintLabel.textColor = .white
+        skillHintLabel.font = .systemFont(ofSize: 14, weight: .bold)
+        skillHintLabel.numberOfLines = 0
+        skillHintLabel.textAlignment = .center
+        
+        view.addSubview(skillHintBubble)
+        skillHintBubble.addSubview(skillHintLabel)
+        
+        skillHintBubble.snp.makeConstraints { make in
+            make.bottom.equalTo(miniGameButton.snp.top).offset(-15)
+            make.right.equalTo(miniGameButton)
+            make.width.equalTo(180)
+        }
+        
+        skillHintLabel.snp.makeConstraints { $0.edges.equalToSuperview().inset(10) }
+    }
+
+    // Вызывай это в viewDidAppear после туториала
+    private func showMiniGameHintIfNeeded() {
+        guard !UserDefaults.standard.bool(forKey: miniGameKey) else { return }
+        
+        UIView.animate(withDuration: 0.5, delay: 1.0, options: .curveEaseOut) {
+            self.skillHintBubble.alpha = 1
+            self.skillHintBubble.transform = CGAffineTransform(translationX: 0, y: -10)
+        } completion: { _ in
+            // Скрываем через 5 секунд
+            UIView.animate(withDuration: 0.5, delay: 5.0, options: .curveEaseIn) {
+                self.skillHintBubble.alpha = 0
+            } completion: { _ in
+                UserDefaults.standard.set(true, forKey: self.miniGameKey)
+            }
+        }
+    }
+
+    @objc private func openMiniGame() {
+        skillHintBubble.isHidden = true
+        let miniVC = MiniGameVC()
+        miniVC.modalPresentationStyle = .fullScreen
+        self.present(miniVC, animated: true)
     }
     
     private func showPauseMenu() {

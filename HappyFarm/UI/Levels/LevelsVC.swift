@@ -203,14 +203,14 @@ class LevelCell: UICollectionViewCell {
 
 extension LevelsVC {
     func getStoryForLevel(_ level: Int) -> [StorySlide] {
-        switch level + 1 {
+        switch level {
         case 1:
             return [
                 StorySlide(text: "Hello there! I'm Barnaby. Welcome to our family farm!", imageName: "farmer_happy"),
                 StorySlide(text: "But look at this dust... The Great Drought has taken everything.", imageName: "farmer_sad"),
                 StorySlide(text: "Legend says only a Magical Clover can summon the rain spirits.", imageName: "farmer_thinking"),
                 StorySlide(text: "The soil is dry, but if we plant now, we might have a chance.", imageName: "farmer_talk"),
-                StorySlide(text: "Try to grow your first clover. Our future depends on it!", imageName: "farmer_happy")
+                StorySlide(text: "Try to grow your first clover. Our future depends on it!", imageName: "farmer_happy2")
             ]
         case 2:
             return [

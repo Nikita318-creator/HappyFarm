@@ -46,7 +46,7 @@ class StoryVC: UIViewController {
         textContainer.layer.borderColor = UIColor.systemOrange.cgColor
         view.addSubview(textContainer)
         textContainer.snp.makeConstraints { make in
-            make.bottom.equalTo(view.safeAreaLayoutGuide).inset(20)
+            make.centerY.equalToSuperview()
             make.leading.trailing.equalToSuperview().inset(15)
             make.height.equalTo(150)
         }
@@ -60,8 +60,15 @@ class StoryVC: UIViewController {
         }
         
         nextButton.setTitle("TAP TO CONTINUE >>>", for: .normal)
-        nextButton.titleLabel?.font = .systemFont(ofSize: 14, weight: .black)
+        nextButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .black)
         nextButton.setTitleColor(.systemOrange, for: .normal)
+
+        nextButton.titleLabel?.layer.shadowColor = UIColor.black.cgColor
+        nextButton.titleLabel?.layer.shadowOffset = CGSize(width: 2, height: 2)
+        nextButton.titleLabel?.layer.shadowRadius = 1.0
+        nextButton.titleLabel?.layer.shadowOpacity = 0.8
+        nextButton.titleLabel?.layer.masksToBounds = false 
+
         nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
         view.addSubview(nextButton)
         nextButton.snp.makeConstraints { make in
@@ -85,7 +92,7 @@ class StoryVC: UIViewController {
     private func updateContent() {
         let slide = slides[currentStep]
         storyLabel.text = slide.text
-        characterImageView.image = UIImage(named: slide.imageName)
+        backgroundImageView.image = UIImage(named: slide.imageName)
         
         storyLabel.alpha = 0
         UIView.animate(withDuration: 0.3) {
