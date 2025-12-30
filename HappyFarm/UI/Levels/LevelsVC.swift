@@ -100,15 +100,35 @@ extension LevelsVC: UICollectionViewDataSource, UICollectionViewDelegate {
     
     func collectionView(_ collectionView: UICollectionView, didSelectItemAt indexPath: IndexPath) {
         let levelNum = indexPath.row + 1
-        if levelNum <= unlockedLevel {
+        
+        guard levelNum <= unlockedLevel else {
+            if let cell = collectionView.cellForItem(at: indexPath) as? LevelCell { cell.shake() }
+            return
+        }
+        
+        let story = getStoryForLevel(levelNum)
+        
+        // Функция запуска игры
+        let startGame = { [weak self] in
             let gameVC = GameVC()
             gameVC.currentLevel = indexPath.row
             gameVC.modalPresentationStyle = .fullScreen
-            self.present(gameVC, animated: true)
-        } else {
-            if let cell = collectionView.cellForItem(at: indexPath) as? LevelCell {
-                cell.shake()
+            self?.present(gameVC, animated: true)
+        }
+        
+        if levelNum <= 10 && !story.isEmpty {
+            let storyVC = StoryVC()
+            storyVC.slides = story
+            storyVC.modalPresentationStyle = .fullScreen
+            
+            // Хендлер сработает ВНУТРИ completion блока dismiss-а в StoryVC
+            storyVC.onStoryFinished = {
+                startGame()
             }
+            
+            self.present(storyVC, animated: true)
+        } else {
+            startGame()
         }
     }
     
@@ -178,5 +198,94 @@ class LevelCell: UICollectionViewCell {
         animation.duration = 0.3
         animation.values = [-5, 5, -5, 5, 0]
         layer.add(animation, forKey: "shake")
+    }
+}
+
+extension LevelsVC {
+    func getStoryForLevel(_ level: Int) -> [StorySlide] {
+        switch level + 1 {
+        case 1:
+            return [
+                StorySlide(text: "Hello there! I'm Barnaby. Welcome to our family farm!", imageName: "farmer_happy"),
+                StorySlide(text: "But look at this dust... The Great Drought has taken everything.", imageName: "farmer_sad"),
+                StorySlide(text: "Legend says only a Magical Clover can summon the rain spirits.", imageName: "farmer_thinking"),
+                StorySlide(text: "The soil is dry, but if we plant now, we might have a chance.", imageName: "farmer_talk"),
+                StorySlide(text: "Try to grow your first clover. Our future depends on it!", imageName: "farmer_happy")
+            ]
+        case 2:
+            return [
+                StorySlide(text: "You did it! I saw a tiny green sprout this morning.", imageName: "farmer_happy"),
+                StorySlide(text: "But the sun is getting hotter. The ground is turning into stone.", imageName: "farmer_sad"),
+                StorySlide(text: "We need more than just luck; we need dedication.", imageName: "farmer_thinking"),
+                StorySlide(text: "It will take longer for the seeds to wake up in this heat.", imageName: "farmer_talk"),
+                StorySlide(text: "Don't lose hope! Let's plant another batch.", imageName: "farmer_happy")
+            ]
+        case 3:
+            return [
+                StorySlide(text: "Barnaby here. Bad news... The water in the well is almost gone.", imageName: "farmer_sad"),
+                StorySlide(text: "The plants are struggling. They need constant care now.", imageName: "farmer_thinking"),
+                StorySlide(text: "Did you hear that? The crows are gathering in the old oak tree.", imageName: "farmer_angry"),
+                StorySlide(text: "They want our seeds! We must harvest quickly before they arrive.", imageName: "farmer_talk"),
+                StorySlide(text: "Concentrate! We need that clover to survive the week.", imageName: "farmer_thinking")
+            ]
+        case 4:
+            return [
+                StorySlide(text: "The heatwave is relentless... Even the shadows feel hot.", imageName: "farmer_sad"),
+                StorySlide(text: "I found an old book in the cellar. It speaks of the 'Iron Soil'.", imageName: "farmer_thinking"),
+                StorySlide(text: "It says the more we plant, the harder the earth fights back.", imageName: "farmer_talk"),
+                StorySlide(text: "Expect the growth to be even slower today. The earth is thirsty.", imageName: "farmer_sad"),
+                StorySlide(text: "Keep going! I'll go check the southern fields for any signs of rain.", imageName: "farmer_happy")
+            ]
+        case 5:
+            return [
+                StorySlide(text: "I'm back! No rain yet, but the wind is changing direction.", imageName: "farmer_happy"),
+                StorySlide(text: "Look at your garden! It's the only green spot left in the valley.", imageName: "farmer_talk"),
+                StorySlide(text: "But beware—the spirits of the drought are angry.", imageName: "farmer_angry"),
+                StorySlide(text: "The time it takes to grow a clover is nearly doubling now.", imageName: "farmer_thinking"),
+                StorySlide(text: "You are our last hope, gardener. Show them your spirit!", imageName: "farmer_happy")
+            ]
+        case 6:
+            return [
+                StorySlide(text: "Listen... can you hear that low rumble in the distance?", imageName: "farmer_happy"),
+                StorySlide(text: "Is it thunder? Or just my hungry stomach? Haha!", imageName: "farmer_happy"),
+                StorySlide(text: "Actually, it's serious. The soil has become incredibly dense.", imageName: "farmer_thinking"),
+                StorySlide(text: "You'll need to wait much longer for the harvest on this level.", imageName: "farmer_talk"),
+                StorySlide(text: "Stay sharp. The final ritual is approaching!", imageName: "farmer_happy")
+            ]
+        case 7:
+            return [
+                StorySlide(text: "The sky is turning gray, but not with rain clouds... It's dust.", imageName: "farmer_sad"),
+                StorySlide(text: "A dust storm is coming. We must secure the patches!", imageName: "farmer_angry"),
+                StorySlide(text: "I've never seen the plants struggle this much.", imageName: "farmer_sad"),
+                StorySlide(text: "It feels like the time itself is slowing down in this garden.", imageName: "farmer_thinking"),
+                StorySlide(text: "Don't let the dust bury our dreams! To work!", imageName: "farmer_talk")
+            ]
+        case 8:
+            return [
+                StorySlide(text: "You're still here? Your persistence is legendary, my friend.", imageName: "farmer_happy"),
+                StorySlide(text: "We've collected enough basic clovers, but the ritual needs more.", imageName: "farmer_thinking"),
+                StorySlide(text: "The soil is so hard now, it's like planting in solid rock.", imageName: "farmer_talk"),
+                StorySlide(text: "Wait for the right moment. Patience is your best tool today.", imageName: "farmer_thinking"),
+                StorySlide(text: "We are so close! I can almost feel the first drop of water.", imageName: "farmer_happy")
+            ]
+        case 9:
+            return [
+                StorySlide(text: "The crows have left. They know something is about to happen.", imageName: "farmer_thinking"),
+                StorySlide(text: "The air is heavy. The magic is concentrating in this very spot.", imageName: "farmer_talk"),
+                StorySlide(text: "One more harvest of the Rare Clover and the spirits will wake.", imageName: "farmer_happy"),
+                StorySlide(text: "It will be the longest wait of your life, but it's worth it.", imageName: "farmer_sad"),
+                StorySlide(text: "Prepare yourself. The final stage is almost here!", imageName: "farmer_happy")
+            ]
+        case 10:
+            return [
+                StorySlide(text: "This is it! Level 10. The peak of our journey.", imageName: "farmer_happy"),
+                StorySlide(text: "The legendary Gold Clover must be grown today.", imageName: "farmer_thinking"),
+                StorySlide(text: "The earth is resisting with all its might. It will be slow.", imageName: "farmer_talk"),
+                StorySlide(text: "If you succeed, the Great Drought will end forever.", imageName: "farmer_happy"),
+                StorySlide(text: "Good luck, Gardener. All of us are praying for your success!", imageName: "farmer_happy")
+            ]
+        default:
+            return []
+        }
     }
 }
