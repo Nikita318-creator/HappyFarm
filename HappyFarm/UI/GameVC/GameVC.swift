@@ -105,11 +105,20 @@ class GameVC: UIViewController {
     }
     
     private func setupMiniGameButton() {
-        miniGameButton.setImage(UIImage(named: "skills_icon"), for: .normal) // Создай иконку в ассетах
+        miniGameButton.setImage(UIImage(named: "skills_icon"), for: .normal)
         miniGameButton.backgroundColor = .systemOrange
         miniGameButton.layer.cornerRadius = 25
         miniGameButton.layer.borderWidth = 3
         miniGameButton.layer.borderColor = UIColor.white.cgColor
+        
+        // --- Добавляем тень кнопке ---
+        miniGameButton.layer.shadowColor = UIColor.black.cgColor
+        miniGameButton.layer.shadowOffset = CGSize(width: 0, height: 4)
+        miniGameButton.layer.shadowRadius = 6
+        miniGameButton.layer.shadowOpacity = 1
+        miniGameButton.layer.masksToBounds = false // Важно: иначе тень обрежется по границам
+        // ----------------------------
+        
         miniGameButton.addTarget(self, action: #selector(openMiniGame), for: .touchUpInside)
         
         view.addSubview(miniGameButton)
@@ -124,6 +133,12 @@ class GameVC: UIViewController {
         skillHintBubble.layer.cornerRadius = 15
         skillHintBubble.alpha = 0
         
+        // Добавим легкую тень и бабблу для объема
+        skillHintBubble.layer.shadowColor = UIColor.black.cgColor
+        skillHintBubble.layer.shadowOffset = CGSize(width: 0, height: 2)
+        skillHintBubble.layer.shadowRadius = 4
+        skillHintBubble.layer.shadowOpacity = 0.3
+        
         skillHintLabel.text = "Bored waiting? Check your skills here!"
         skillHintLabel.textColor = .white
         skillHintLabel.font = .systemFont(ofSize: 14, weight: .bold)
@@ -135,7 +150,7 @@ class GameVC: UIViewController {
         
         skillHintBubble.snp.makeConstraints { make in
             make.bottom.equalTo(miniGameButton.snp.top).offset(-15)
-            make.right.equalTo(miniGameButton)
+            make.centerX.equalTo(miniGameButton) // Выровнял по центру кнопки, раз кнопка теперь в центре экрана
             make.width.equalTo(180)
         }
         

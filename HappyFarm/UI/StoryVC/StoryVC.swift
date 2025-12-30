@@ -9,7 +9,7 @@ struct StorySlide {
 class StoryVC: UIViewController {
     
     var slides: [StorySlide] = []
-    var onStoryFinished: (() -> Void)? // Этот хендлер теперь вызываем правильно
+    var onStoryFinished: (() -> Void)?
     
     private var currentStep = 0
     private let backgroundImageView = UIImageView()
@@ -21,12 +21,20 @@ class StoryVC: UIViewController {
     override func viewDidLoad() {
         super.viewDidLoad()
         setupUI()
+        setupGesture() // Добавляем распознаватель тапа
         updateContent()
+    }
+    
+    private func setupGesture() {
+        // Создаем жест тапа на всю вьюху
+        let tapGesture = UITapGestureRecognizer(target: self, action: #selector(nextTapped))
+        view.addGestureRecognizer(tapGesture)
+        view.isUserInteractionEnabled = true
     }
     
     private func setupUI() {
         view.backgroundColor = .black
-        backgroundImageView.image = UIImage(named: "story_bg")
+        
         backgroundImageView.contentMode = .scaleAspectFill
         view.addSubview(backgroundImageView)
         backgroundImageView.snp.makeConstraints { $0.edges.equalToSuperview() }
@@ -44,6 +52,7 @@ class StoryVC: UIViewController {
         textContainer.layer.cornerRadius = 20
         textContainer.layer.borderWidth = 2
         textContainer.layer.borderColor = UIColor.systemOrange.cgColor
+        textContainer.isUserInteractionEnabled = false // Пропускаем нажатия сквозь контейнер к основной вью
         view.addSubview(textContainer)
         textContainer.snp.makeConstraints { make in
             make.centerY.equalToSuperview()
@@ -60,16 +69,15 @@ class StoryVC: UIViewController {
         }
         
         nextButton.setTitle("TAP TO CONTINUE >>>", for: .normal)
-        nextButton.titleLabel?.font = .systemFont(ofSize: 18, weight: .black)
+        nextButton.titleLabel?.font = .systemFont(ofSize: 22, weight: .black)
         nextButton.setTitleColor(.systemOrange, for: .normal)
-
+        nextButton.isUserInteractionEnabled = false // Чтобы кнопка не блокировала жест основной вью
+        
         nextButton.titleLabel?.layer.shadowColor = UIColor.black.cgColor
-        nextButton.titleLabel?.layer.shadowOffset = CGSize(width: 2, height: 2)
-        nextButton.titleLabel?.layer.shadowRadius = 1.0
-        nextButton.titleLabel?.layer.shadowOpacity = 0.8
-        nextButton.titleLabel?.layer.masksToBounds = false 
-
-        nextButton.addTarget(self, action: #selector(nextTapped), for: .touchUpInside)
+        nextButton.titleLabel?.layer.shadowOffset = CGSize(width: 4, height: 4)
+        nextButton.titleLabel?.layer.shadowRadius = 2.0
+        nextButton.titleLabel?.layer.shadowOpacity = 1
+        
         view.addSubview(nextButton)
         nextButton.snp.makeConstraints { make in
             make.bottom.equalTo(textContainer.snp.top).offset(-10)
@@ -82,7 +90,6 @@ class StoryVC: UIViewController {
         if currentStep < slides.count {
             updateContent()
         } else {
-            // Сначала закрываем историю, и ТОЛЬКО в completion запускаем игру
             self.dismiss(animated: true) {
                 self.onStoryFinished?()
             }
@@ -90,6 +97,7 @@ class StoryVC: UIViewController {
     }
     
     private func updateContent() {
+        guard currentStep < slides.count else { return }
         let slide = slides[currentStep]
         storyLabel.text = slide.text
         backgroundImageView.image = UIImage(named: slide.imageName)
