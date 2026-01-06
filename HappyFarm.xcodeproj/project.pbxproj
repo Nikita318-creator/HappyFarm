@@ -8,6 +8,9 @@
 
 /* Begin PBXBuildFile section */
 		10531B682EF73470003063AA /* SnapKit in Frameworks */ = {isa = PBXBuildFile; productRef = 10531B672EF73470003063AA /* SnapKit */; };
+		1055A66B2F0C91A2004FF05B /* FirebaseDatabase in Frameworks */ = {isa = PBXBuildFile; productRef = 1055A66A2F0C91A2004FF05B /* FirebaseDatabase */; };
+		1055A66D2F0C91A2004FF05B /* FirebaseMessaging in Frameworks */ = {isa = PBXBuildFile; productRef = 1055A66C2F0C91A2004FF05B /* FirebaseMessaging */; };
+		1055A67C2F0C9D9A004FF05B /* AppsFlyerLib in Frameworks */ = {isa = PBXBuildFile; productRef = 1055A67B2F0C9D9A004FF05B /* AppsFlyerLib */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
@@ -40,6 +43,9 @@
 			isa = PBXFrameworksBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				1055A66D2F0C91A2004FF05B /* FirebaseMessaging in Frameworks */,
+				1055A67C2F0C9D9A004FF05B /* AppsFlyerLib in Frameworks */,
+				1055A66B2F0C91A2004FF05B /* FirebaseDatabase in Frameworks */,
 				10531B682EF73470003063AA /* SnapKit in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -84,6 +90,9 @@
 			name = HappyFarm;
 			packageProductDependencies = (
 				10531B672EF73470003063AA /* SnapKit */,
+				1055A66A2F0C91A2004FF05B /* FirebaseDatabase */,
+				1055A66C2F0C91A2004FF05B /* FirebaseMessaging */,
+				1055A67B2F0C9D9A004FF05B /* AppsFlyerLib */,
 			);
 			productName = HappyFarm;
 			productReference = 10531B3E2EF733DF003063AA /* HappyFarm.app */;
@@ -115,6 +124,8 @@
 			minimizedProjectReferenceProxies = 1;
 			packageReferences = (
 				10531B662EF73470003063AA /* XCRemoteSwiftPackageReference "SnapKit" */,
+				1055A6692F0C91A2004FF05B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */,
+				1055A67A2F0C9D9A004FF05B /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */,
 			);
 			preferredProjectObjectVersion = 77;
 			productRefGroup = 10531B3F2EF733DF003063AA /* Products */;
@@ -152,12 +163,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HappyFarm/HappyFarm.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HappyFarm/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Clover Valley";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to allow you to upload images";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need access to your microphone to let you record video";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -168,7 +182,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.CloverValley.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -191,12 +205,15 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
+				CODE_SIGN_ENTITLEMENTS = HappyFarm/HappyFarm.entitlements;
 				CODE_SIGN_STYLE = Manual;
 				CURRENT_PROJECT_VERSION = 2;
 				DEVELOPMENT_TEAM = "";
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = HappyFarm/Info.plist;
 				INFOPLIST_KEY_CFBundleDisplayName = "Clover Valley";
+				INFOPLIST_KEY_NSCameraUsageDescription = "We need access to your camera to allow you to upload images";
+				INFOPLIST_KEY_NSMicrophoneUsageDescription = "We need access to your microphone to let you record video";
 				INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents = YES;
 				INFOPLIST_KEY_UILaunchStoryboardName = LaunchScreen;
 				INFOPLIST_KEY_UIMainStoryboardFile = Main;
@@ -207,7 +224,7 @@
 					"$(inherited)",
 					"@executable_path/Frameworks",
 				);
-				MARKETING_VERSION = 1.0;
+				MARKETING_VERSION = 1.1;
 				PRODUCT_BUNDLE_IDENTIFIER = com.CloverValley.app;
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				PROVISIONING_PROFILE_SPECIFIER = "";
@@ -378,6 +395,22 @@
 				minimumVersion = 5.7.1;
 			};
 		};
+		1055A6692F0C91A2004FF05B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/firebase/firebase-ios-sdk";
+			requirement = {
+				branch = main;
+				kind = branch;
+			};
+		};
+		1055A67A2F0C9D9A004FF05B /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */ = {
+			isa = XCRemoteSwiftPackageReference;
+			repositoryURL = "https://github.com/AppsFlyerSDK/AppsFlyerFramework.git";
+			requirement = {
+				kind = upToNextMajorVersion;
+				minimumVersion = 6.17.8;
+			};
+		};
 /* End XCRemoteSwiftPackageReference section */
 
 /* Begin XCSwiftPackageProductDependency section */
@@ -385,6 +418,21 @@
 			isa = XCSwiftPackageProductDependency;
 			package = 10531B662EF73470003063AA /* XCRemoteSwiftPackageReference "SnapKit" */;
 			productName = SnapKit;
+		};
+		1055A66A2F0C91A2004FF05B /* FirebaseDatabase */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1055A6692F0C91A2004FF05B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseDatabase;
+		};
+		1055A66C2F0C91A2004FF05B /* FirebaseMessaging */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1055A6692F0C91A2004FF05B /* XCRemoteSwiftPackageReference "firebase-ios-sdk" */;
+			productName = FirebaseMessaging;
+		};
+		1055A67B2F0C9D9A004FF05B /* AppsFlyerLib */ = {
+			isa = XCSwiftPackageProductDependency;
+			package = 1055A67A2F0C9D9A004FF05B /* XCRemoteSwiftPackageReference "AppsFlyerFramework" */;
+			productName = AppsFlyerLib;
 		};
 /* End XCSwiftPackageProductDependency section */
 	};

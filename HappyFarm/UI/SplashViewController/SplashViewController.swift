@@ -7,7 +7,6 @@ class SplashViewController: UIViewController {
     
     private let iconView: UIImageView = {
         let iv = UIImageView()
-//        iv.image = UIImage(systemName: "flame.fill")
         iv.tintColor = .systemRed
         return iv
     }()
@@ -22,7 +21,6 @@ class SplashViewController: UIViewController {
             make.size.equalTo(100)
         }
         
-        // Запускаем таймер здесь один раз
         DispatchQueue.main.asyncAfter(deadline: .now() + 0.1) {
             self.onComplete?()
         }
